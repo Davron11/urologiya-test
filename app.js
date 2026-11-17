@@ -4,55 +4,69 @@
   var QUESTIONS = window.QUESTIONS || [];
   var STORE_SESSION = 'uro.session.v1';
   var STORE_MISTAKES = 'uro.mistakes.v1';
+  var STORE_LAST = 'uro.last.v1';
   var STORE_LANG = 'uro.lang';
   var COUNT_OPTIONS = [10, 20, 30, 50, 100, 0]; // 0 = all
   var LETTERS = 'ABCDEFGHIJ';
+  var PASS_GOOD = 85;
+  var PASS_OK = 60;
 
   var I18N = {
     uz: {
-      title: 'Urologiya bo‘yicha test', total: 'Bazada {n} ta savol',
-      count: 'Savollar soni', all_: 'Hammasi', range: 'Savollar oralig‘i (raqamlar)',
+      eyebrow: 'Urologiya · 2024', title: 'Bilimingizni sinab ko‘ring',
+      lead: 'Rasmiy test bazasi asosida mashq qiling: darhol tekshiruv, xatolar ustida ishlash va natijalar tahlili.',
+      statTotal: 'savol', statLast: 'oxirgi natija', statMist: 'xatolar',
+      count: 'Savollar soni', all_: 'Barchasi', range: 'Savollar oralig‘i',
       shuffleQ: 'Savollarni aralashtirish', shuffleA: 'Javoblarni aralashtirish',
       instant: 'Javobni darhol ko‘rsatish', start: 'Testni boshlash',
-      resume: 'Davom ettirish ({a}/{b})', mistakes: 'Xatolar ustida ishlash ({n})',
-      prev: '← Orqaga', check: 'Tekshirish', next: 'Keyingi →', all: 'Barcha savollar',
+      resume: 'Davom ettirish · {a}/{b}', mistakes: 'Xatolar · {n}',
+      check: 'Tekshirish', next: 'Keyingi', finishBtn: 'Yakunlash', all: 'Savollar',
       finish: 'Yakunlash', result: 'Natija', reviewWrong: 'Xatolarni ko‘rish',
       retryWrong: 'Xatolarni qayta yechish', home: 'Bosh sahifa',
-      qOf: 'Savol {a} / {b}', score: '✔ {a}  ✘ {b}', orig: '№ {n}',
-      one: '1 ta javob', many: '{n} ta javob tanlang',
-      ok: 'To‘g‘ri!', bad: 'Noto‘g‘ri', part: 'Qisman to‘g‘ri — to‘g‘ri javoblar yashil rangda',
-      resText: '{a} ta to‘g‘ri, {b} ta noto‘g‘ri, {c} ta javobsiz (jami {t})',
+      qOf: 'Savol {a} / {b}', orig: 'Baza № {n}',
+      one: '1 ta to‘g‘ri javob', many: '{n} ta to‘g‘ri javob',
+      ok: 'To‘g‘ri javob!', bad: 'Noto‘g‘ri. To‘g‘ri javob yashil rangda ko‘rsatilgan',
+      part: 'Qisman to‘g‘ri. Barcha to‘g‘ri javoblar yashil rangda',
+      tagOk: '✓ To‘g‘ri', tagBad: '✕ Noto‘g‘ri', tagMissed: 'To‘g‘ri javob',
+      lgOk: 'to‘g‘ri', lgBad: 'noto‘g‘ri', lgSel: 'tanlangan', unanswered: 'javobsiz',
       confirmFinish: 'Testni yakunlaysizmi? Javob berilmagan savollar: {n}',
-      noWrong: 'Xatolar yo‘q — ajoyib!', yourAns: 'Sizning javobingiz', unanswered: 'Javob berilmagan',
-      emptyRange: 'Tanlangan oraliqda savollar yo‘q'
+      noWrong: 'Xatolar yo‘q — ajoyib natija!',
+      emptyRange: 'Tanlangan oraliqda savollar yo‘q',
+      tGood: 'A’lo natija!', tOk: 'Yaxshi, lekin yana mashq qiling', tBad: 'Ko‘proq tayyorlanish kerak'
     },
     ru: {
-      title: 'Тест по урологии', total: 'В базе {n} вопросов',
-      count: 'Количество вопросов', all_: 'Все', range: 'Диапазон вопросов (номера)',
+      eyebrow: 'Урология · 2024', title: 'Проверьте свои знания',
+      lead: 'Тренируйтесь по официальной базе тестов: мгновенная проверка, работа над ошибками и разбор результатов.',
+      statTotal: 'вопросов', statLast: 'последний результат', statMist: 'ошибок',
+      count: 'Количество вопросов', all_: 'Все', range: 'Диапазон вопросов',
       shuffleQ: 'Перемешать вопросы', shuffleA: 'Перемешать ответы',
-      instant: 'Сразу показывать правильный ответ', start: 'Начать тест',
-      resume: 'Продолжить ({a}/{b})', mistakes: 'Работа над ошибками ({n})',
-      prev: '← Назад', check: 'Проверить', next: 'Далее →', all: 'Все вопросы',
-      finish: 'Завершить', result: 'Результат', reviewWrong: 'Посмотреть ошибки',
+      instant: 'Сразу показывать ответ', start: 'Начать тест',
+      resume: 'Продолжить · {a}/{b}', mistakes: 'Ошибки · {n}',
+      check: 'Проверить', next: 'Далее', finishBtn: 'Завершить', all: 'Вопросы',
+      finish: 'Завершить', result: 'Результат', reviewWrong: 'Разбор ошибок',
       retryWrong: 'Перерешать ошибки', home: 'На главную',
-      qOf: 'Вопрос {a} / {b}', score: '✔ {a}  ✘ {b}', orig: '№ {n}',
-      one: '1 ответ', many: 'Выберите {n} ответа',
-      ok: 'Правильно!', bad: 'Неправильно', part: 'Частично верно — правильные ответы выделены зелёным',
-      resText: '{a} верно, {b} неверно, {c} без ответа (всего {t})',
+      qOf: 'Вопрос {a} / {b}', orig: 'В базе № {n}',
+      one: '1 правильный ответ', many: '{n} правильных ответа',
+      ok: 'Правильно!', bad: 'Неверно. Правильный ответ выделен зелёным',
+      part: 'Частично верно. Все правильные ответы выделены зелёным',
+      tagOk: '✓ Верно', tagBad: '✕ Неверно', tagMissed: 'Правильный ответ',
+      lgOk: 'верно', lgBad: 'неверно', lgSel: 'выбрано', unanswered: 'без ответа',
       confirmFinish: 'Завершить тест? Вопросов без ответа: {n}',
-      noWrong: 'Ошибок нет — отлично!', yourAns: 'Ваш ответ', unanswered: 'Без ответа',
-      emptyRange: 'В выбранном диапазоне нет вопросов'
+      noWrong: 'Ошибок нет — отличный результат!',
+      emptyRange: 'В выбранном диапазоне нет вопросов',
+      tGood: 'Отличный результат!', tOk: 'Неплохо, но стоит потренироваться', tBad: 'Нужно больше подготовки'
     }
   };
 
-  var lang = readStore(STORE_LANG) || 'uz';
+  var lang = readStore(STORE_LANG) === 'ru' ? 'ru' : 'uz';
   var countChoice = 20;
   var session = null;
   var lastFinished = null;
 
+  /* ---------- helpers ---------- */
   function $(id) { return document.getElementById(id); }
   function t(key, vars) {
-    var s = (I18N[lang] && I18N[lang][key]) || key;
+    var s = I18N[lang][key] || key;
     Object.keys(vars || {}).forEach(function (k) { s = s.split('{' + k + '}').join(vars[k]); });
     return s;
   }
@@ -86,11 +100,15 @@
     ['start', 'quiz', 'result'].forEach(function (s) { $(s).classList.toggle('hidden', s !== id); });
     window.scrollTo(0, 0);
   }
+  function applyStaticText() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-t]').forEach(function (n) { n.textContent = t(n.getAttribute('data-t')); });
+    $('langBtn').textContent = lang === 'uz' ? 'RU' : 'UZ';
+  }
 
   /* ---------- grading ---------- */
   function sameSet(a, b) {
-    if (a.length !== b.length) return false;
-    return a.every(function (x) { return b.indexOf(x) !== -1; });
+    return a.length === b.length && a.every(function (x) { return b.indexOf(x) !== -1; });
   }
   function statusOf(s, i) {
     var sel = s.selected[i];
@@ -106,7 +124,7 @@
     return r;
   }
 
-  /* ---------- session ---------- */
+  /* ---------- persistence ---------- */
   function newSession(ids, opts) {
     var order = opts.shuffleQ ? shuffled(ids) : ids.slice();
     return {
@@ -125,47 +143,44 @@
   function loadSession() {
     var s = readJSON(STORE_SESSION);
     if (!s || !Array.isArray(s.ids) || !s.ids.length) return null;
-    var valid = s.ids.every(function (q) { return QUESTIONS[q]; });
-    return valid ? s : null;
+    return s.ids.every(function (q) { return QUESTIONS[q]; }) ? s : null;
   }
   function getMistakes() {
     var m = readJSON(STORE_MISTAKES);
     return Array.isArray(m) ? m.filter(function (q) { return QUESTIONS[q]; }) : [];
   }
-  function setMistakes(list) { writeStore(STORE_MISTAKES, JSON.stringify(list)); }
   function recordOutcome(qid, ok) {
     var m = getMistakes().filter(function (x) { return x !== qid; });
     if (!ok) m.push(qid);
-    setMistakes(m);
+    writeStore(STORE_MISTAKES, JSON.stringify(m));
   }
 
   /* ---------- start screen ---------- */
   function renderStart() {
-    document.documentElement.lang = lang;
-    document.querySelectorAll('[data-t]').forEach(function (n) { n.textContent = t(n.getAttribute('data-t')); });
-    $('langBtn').textContent = lang === 'uz' ? 'RU' : 'UZ';
-    $('totalInfo').textContent = t('total', { n: QUESTIONS.length });
+    applyStaticText();
+    $('statTotal').textContent = QUESTIONS.length;
+    var last = readJSON(STORE_LAST);
+    $('statLast').textContent = typeof last === 'number' ? last + '%' : '—';
+    var m = getMistakes();
+    $('statMist').textContent = m.length;
 
     var chips = $('countChips');
     chips.textContent = '';
     COUNT_OPTIONS.forEach(function (n) {
-      var b = el('button', 'chip' + (n === countChoice ? ' on' : ''), n === 0 ? t('all_') : String(n));
+      var b = el('button', n === countChoice ? 'on' : '', n === 0 ? t('all_') : String(n));
       b.type = 'button';
       b.addEventListener('click', function () { countChoice = n; renderStart(); });
       chips.appendChild(b);
     });
 
     var existing = loadSession();
-    var resume = $('resumeBtn');
-    resume.classList.toggle('hidden', !existing);
+    $('resumeBtn').classList.toggle('hidden', !existing);
     if (existing) {
       var done = existing.selected.filter(function (x) { return x.length; }).length;
-      resume.textContent = t('resume', { a: done, b: existing.ids.length });
+      $('resumeBtn').textContent = t('resume', { a: done, b: existing.ids.length });
     }
-    var m = getMistakes();
     $('mistakesBtn').classList.toggle('hidden', !m.length);
     $('mistakesBtn').textContent = t('mistakes', { n: m.length });
-    if (session && !$('quiz').classList.contains('hidden')) renderQuiz();
   }
 
   function readOptions() {
@@ -191,13 +206,34 @@
   function beginSession(s) {
     session = s;
     save();
-    $('grid').classList.add('hidden');
+    $('side').classList.remove('open');
     show('quiz');
     renderQuiz();
   }
 
   /* ---------- quiz screen ---------- */
+  function answerState(q, ai, sel, locked) {
+    var isSel = sel.indexOf(ai) !== -1;
+    var isCorrect = q.c.indexOf(ai) !== -1;
+    if (!locked) return { cls: isSel ? 'sel' : '', tag: '' };
+    if (isCorrect && isSel) return { cls: 'correct', tag: t('tagOk') };
+    if (isCorrect) return { cls: 'correct missed', tag: t('tagMissed') };
+    if (isSel) return { cls: 'wrong', tag: t('tagBad') };
+    return { cls: 'dim', tag: '' };
+  }
+
+  function buildAnswer(tag, q, ai, pos, sel, locked, multi) {
+    var st = answerState(q, ai, sel, locked);
+    var node = el(tag, 'answer' + (multi ? ' multi' : '') + (st.cls ? ' ' + st.cls : ''));
+    var mark = st.cls.indexOf('wrong') !== -1 ? '✕' : (st.cls === 'correct' ? '✓' : LETTERS[pos]);
+    node.appendChild(el('span', 'mark', mark));
+    node.appendChild(el('span', '', q.a[ai]));
+    if (st.tag) node.appendChild(el('span', 'tag', st.tag));
+    return node;
+  }
+
   function renderQuiz() {
+    applyStaticText();
     var s = session, i = s.cur, q = QUESTIONS[s.ids[i]];
     var multi = q.c.length > 1;
     var locked = s.checked[i];
@@ -205,8 +241,10 @@
     var counts = tally(s, true);
 
     $('qNum').textContent = t('qOf', { a: i + 1, b: s.ids.length });
-    $('score').textContent = s.instant ? t('score', { a: counts.ok, b: counts.bad }) : '';
-    $('barFill').style.width = ((i + 1) / s.ids.length * 100) + '%';
+    $('scoreOk').textContent = counts.ok;
+    $('scoreBad').textContent = counts.bad;
+    $('scoreOk').parentNode.classList.toggle('hidden', !s.instant);
+    $('barFill').style.transform = 'scaleX(' + ((i + 1) / s.ids.length) + ')';
     $('qOrig').textContent = t('orig', { n: s.ids[i] + 1 });
     $('qHint').textContent = multi ? t('many', { n: q.c.length }) : t('one');
     $('qText').textContent = q.q;
@@ -215,52 +253,44 @@
     box.textContent = '';
     box.classList.toggle('locked', locked);
     s.ansOrder[i].forEach(function (ai, pos) {
-      var b = el('button', 'answer' + (multi ? ' multi' : ''));
+      var b = buildAnswer('button', q, ai, pos, sel, locked, multi);
       b.type = 'button';
-      var isSel = sel.indexOf(ai) !== -1;
-      var isCorrect = q.c.indexOf(ai) !== -1;
-      if (locked) {
-        if (isCorrect && isSel) b.classList.add('correct');
-        else if (isCorrect) b.classList.add('correct', 'missed');
-        else if (isSel) b.classList.add('wrong');
-      } else if (isSel) b.classList.add('sel');
-      b.setAttribute('aria-pressed', String(isSel));
-      b.appendChild(el('span', 'mark', LETTERS[pos]));
-      b.appendChild(el('span', '', q.a[ai]));
+      b.setAttribute('aria-pressed', String(sel.indexOf(ai) !== -1));
       if (!locked) b.addEventListener('click', function () { toggleAnswer(ai, multi); });
       box.appendChild(b);
     });
 
-    var fb = $('feedback');
-    fb.classList.toggle('hidden', !locked);
-    if (locked) {
-      var st = statusOf(s, i);
-      var partial = st === 'bad' && sel.some(function (x) { return q.c.indexOf(x) !== -1; });
-      fb.className = 'feedback ' + (st === 'ok' ? 'ok' : partial ? 'part' : 'bad');
-      fb.textContent = st === 'ok' ? t('ok') : partial ? t('part') : t('bad');
-    }
+    renderFeedback(s, i, q, locked, sel);
 
-    $('prevBtn').disabled = i === 0;
+    var isLast = i === s.ids.length - 1;
     var needCheck = s.instant && !locked;
+    $('prevBtn').disabled = i === 0;
     $('checkBtn').classList.toggle('hidden', !needCheck);
     $('checkBtn').disabled = !sel.length;
     $('nextBtn').classList.toggle('hidden', needCheck);
-    $('nextBtn').textContent = i === s.ids.length - 1 ? t('finish') : t('next');
-    if (!$('grid').classList.contains('hidden')) renderGrid();
+    $('nextBtn').textContent = (isLast ? t('finishBtn') : t('next')) + ' →';
+    renderGrid();
+  }
+
+  function renderFeedback(s, i, q, locked, sel) {
+    var fb = $('feedback');
+    fb.classList.toggle('hidden', !locked);
+    if (!locked) return;
+    var st = statusOf(s, i);
+    var partial = st === 'bad' && sel.some(function (x) { return q.c.indexOf(x) !== -1; });
+    fb.className = 'feedback ' + (st === 'ok' ? 'ok' : partial ? 'part' : 'bad');
+    fb.textContent = st === 'ok' ? t('ok') : partial ? t('part') : t('bad');
   }
 
   function toggleAnswer(ai, multi) {
-    var s = session, i = s.cur;
+    var s = session, i = s.cur, q = QUESTIONS[s.ids[i]];
     var sel = s.selected[i];
-    var next;
-    if (multi) {
-      next = sel.indexOf(ai) !== -1 ? sel.filter(function (x) { return x !== ai; }) : sel.concat([ai]);
-    } else {
-      next = [ai];
-    }
+    var next = !multi ? [ai]
+      : sel.indexOf(ai) !== -1 ? sel.filter(function (x) { return x !== ai; })
+      : sel.concat([ai]);
     s.selected = s.selected.map(function (v, k) { return k === i ? next : v; });
-    // single-answer in instant mode: check immediately on tap
-    if (!multi && s.instant) { checkCurrent(); return; }
+    // instant mode: check automatically once the required number of answers is chosen
+    if (s.instant && next.length === q.c.length) { checkCurrent(); return; }
     save();
     renderQuiz();
   }
@@ -277,11 +307,11 @@
   function go(delta) {
     var n = session.cur + delta;
     if (n < 0) return;
-    if (n >= session.ids.length) { finish(false); return; }
+    if (n >= session.ids.length) { finish(true); return; }
     session.cur = n;
     save();
     renderQuiz();
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function renderGrid() {
@@ -291,11 +321,13 @@
       var b = el('button', '', String(i + 1));
       b.type = 'button';
       var st = statusOf(session, i);
-      var reveal = session.checked[i];
-      if (reveal && st !== 'none') b.classList.add(st);
-      else if (session.selected[i].length) b.style.borderColor = 'var(--accent)';
+      if (session.checked[i] && st !== 'none') b.classList.add(st);
+      else if (session.selected[i].length) b.classList.add('sel');
       if (i === session.cur) b.classList.add('cur');
-      b.addEventListener('click', function () { session.cur = i; save(); renderQuiz(); });
+      b.addEventListener('click', function () {
+        session.cur = i; save(); renderQuiz();
+        $('side').classList.remove('open');
+      });
       g.appendChild(b);
     });
   }
@@ -303,28 +335,38 @@
   function finish(ask) {
     var s = session;
     var unanswered = s.selected.filter(function (x) { return !x.length; }).length;
-    if (ask && !confirm(t('confirmFinish', { n: unanswered }))) return;
+    if (ask && unanswered && !confirm(t('confirmFinish', { n: unanswered }))) return;
     s.ids.forEach(function (qid, i) {
       if (!s.checked[i] && s.selected[i].length) recordOutcome(qid, statusOf(s, i) === 'ok');
     });
+    var r = tally(s, false);
+    writeStore(STORE_LAST, JSON.stringify(Math.round(r.ok / s.ids.length * 100)));
     lastFinished = s;
     session = null;
     save();
+    show('result');
     renderResult();
   }
 
   /* ---------- result screen ---------- */
   function renderResult() {
-    var s = lastFinished, r = tally(s, false), total = s.ids.length;
-    show('result');
-    document.querySelectorAll('#result [data-t]').forEach(function (n) { n.textContent = t(n.getAttribute('data-t')); });
-    $('resPercent').textContent = Math.round(r.ok / total * 100) + '%';
-    $('resText').textContent = t('resText', { a: r.ok, b: r.bad, c: r.none, t: total });
+    applyStaticText();
+    var s = lastFinished, r = tally(s, false);
+    var pct = Math.round(r.ok / s.ids.length * 100);
+    var ring = $('ring');
+    ring.style.setProperty('--p', pct);
+    ring.style.setProperty('--c', pct >= PASS_GOOD ? 'var(--ok)' : pct >= PASS_OK ? 'var(--warn)' : 'var(--bad)');
+    $('resPercent').textContent = pct + '%';
+    $('resTitle').textContent = pct >= PASS_GOOD ? t('tGood') : pct >= PASS_OK ? t('tOk') : t('tBad');
+    $('resOk').textContent = r.ok;
+    $('resBad').textContent = r.bad;
+    $('resNone').textContent = r.none;
     var hasWrong = r.bad + r.none > 0;
     $('reviewBtn').classList.toggle('hidden', !hasWrong);
     $('retryWrongBtn').classList.toggle('hidden', !hasWrong);
-    $('review').textContent = '';
-    if (!hasWrong) $('review').appendChild(el('p', 'card center', t('noWrong')));
+    var box = $('review');
+    box.textContent = '';
+    if (!hasWrong) box.appendChild(el('p', 'panel', t('noWrong')));
   }
 
   function renderReview() {
@@ -332,20 +374,13 @@
     box.textContent = '';
     s.ids.forEach(function (qid, i) {
       if (statusOf(s, i) === 'ok') return;
-      var q = QUESTIONS[qid], sel = s.selected[i];
-      var card = el('div', 'card review-item');
+      var q = QUESTIONS[qid], sel = s.selected[i], multi = q.c.length > 1;
+      var card = el('div', 'panel');
       card.appendChild(el('div', 'qmeta', t('orig', { n: qid + 1 }) + (sel.length ? '' : ' · ' + t('unanswered'))));
       card.appendChild(el('h3', '', q.q));
-      s.ansOrder[i].forEach(function (ai, pos) {
-        var isSel = sel.indexOf(ai) !== -1, isCorrect = q.c.indexOf(ai) !== -1;
-        var cls = 'answer' + (q.c.length > 1 ? ' multi' : '');
-        if (isCorrect) cls += isSel ? ' correct' : ' correct missed';
-        else if (isSel) cls += ' wrong';
-        var row = el('div', cls);
-        row.appendChild(el('span', 'mark', LETTERS[pos]));
-        row.appendChild(el('span', '', q.a[ai]));
-        card.appendChild(row);
-      });
+      var list = el('div', 'answers locked');
+      s.ansOrder[i].forEach(function (ai, pos) { list.appendChild(buildAnswer('div', q, ai, pos, sel, true, multi)); });
+      card.appendChild(list);
       box.appendChild(card);
     });
     box.scrollIntoView({ behavior: 'smooth' });
@@ -365,8 +400,9 @@
   $('langBtn').addEventListener('click', function () {
     lang = lang === 'uz' ? 'ru' : 'uz';
     writeStore(STORE_LANG, lang);
-    renderStart();
-    if (!$('result').classList.contains('hidden') && lastFinished) renderResult();
+    if (!$('quiz').classList.contains('hidden') && session) renderQuiz();
+    else if (!$('result').classList.contains('hidden') && lastFinished) renderResult();
+    else renderStart();
   });
   $('startBtn').addEventListener('click', startNew);
   $('resumeBtn').addEventListener('click', function () {
@@ -381,10 +417,7 @@
   $('nextBtn').addEventListener('click', function () { go(1); });
   $('checkBtn').addEventListener('click', checkCurrent);
   $('finishBtn').addEventListener('click', function () { finish(true); });
-  $('gridBtn').addEventListener('click', function () {
-    $('grid').classList.toggle('hidden');
-    if (!$('grid').classList.contains('hidden')) renderGrid();
-  });
+  $('gridBtn').addEventListener('click', function () { $('side').classList.toggle('open'); });
   $('reviewBtn').addEventListener('click', renderReview);
   $('retryWrongBtn').addEventListener('click', retryWrong);
   $('homeBtn').addEventListener('click', function () { show('start'); renderStart(); });
@@ -397,8 +430,8 @@
     else if (e.key === 'Enter' && !$('checkBtn').classList.contains('hidden')) checkCurrent();
     else {
       var pos = LETTERS.indexOf(e.key.toUpperCase());
-      var btn = $('answers').children[pos];
-      if (pos >= 0 && btn) btn.click();
+      var btn = pos >= 0 ? $('answers').children[pos] : null;
+      if (btn && btn.tagName === 'BUTTON') btn.click();
     }
   });
 

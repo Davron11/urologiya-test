@@ -3,82 +3,125 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f766e">
+<meta name="theme-color" content="#f5f3ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0d14" media="(prefers-color-scheme: dark)">
 <title>Urologiya testlari</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="top">
-  <div class="brand">Urologiya <span>testlari</span></div>
-  <button id="langBtn" class="ghost small" type="button" aria-label="Til / Язык">RU</button>
+  <div class="top-inner">
+    <a class="brand" href="./" aria-label="Urologiya testlari">
+      <span class="logo" aria-hidden="true">U</span>
+      <span>Urologiya<em>.test</em></span>
+    </a>
+    <button id="langBtn" class="lang" type="button" aria-label="Til / Язык">RU</button>
+  </div>
 </header>
 
 <main id="app">
-  <!-- START SCREEN -->
-  <section id="start" class="card screen">
-    <h1 data-t="title"></h1>
-    <p class="muted" id="totalInfo"></p>
-
-    <label class="field">
-      <span data-t="count"></span>
-      <div class="chips" id="countChips"></div>
-    </label>
-
-    <label class="field">
-      <span data-t="range"></span>
-      <div class="range-row">
-        <input type="number" id="rangeFrom" min="1" inputmode="numeric">
-        <span>—</span>
-        <input type="number" id="rangeTo" min="1" inputmode="numeric">
+  <!-- START -->
+  <section id="start" class="screen start">
+    <div class="hero">
+      <span class="eyebrow" data-t="eyebrow"></span>
+      <h1 data-t="title"></h1>
+      <p class="lead" data-t="lead"></p>
+      <div class="stats">
+        <div class="stat"><b id="statTotal">0</b><span data-t="statTotal"></span></div>
+        <div class="stat"><b id="statLast">—</b><span data-t="statLast"></span></div>
+        <div class="stat"><b id="statMist">0</b><span data-t="statMist"></span></div>
       </div>
-    </label>
+    </div>
 
-    <label class="check"><input type="checkbox" id="optShuffleQ" checked> <span data-t="shuffleQ"></span></label>
-    <label class="check"><input type="checkbox" id="optShuffleA" checked> <span data-t="shuffleA"></span></label>
-    <label class="check"><input type="checkbox" id="optInstant" checked> <span data-t="instant"></span></label>
-
-    <button id="startBtn" class="primary big" type="button" data-t="start"></button>
-    <button id="resumeBtn" class="ghost big hidden" type="button" data-t="resume"></button>
-    <button id="mistakesBtn" class="ghost big hidden" type="button"></button>
+    <div class="panel setup">
+      <div class="field">
+        <span class="label" data-t="count"></span>
+        <div class="seg" id="countChips"></div>
+      </div>
+      <div class="field">
+        <span class="label" data-t="range"></span>
+        <div class="range-row">
+          <input type="number" id="rangeFrom" min="1" inputmode="numeric" aria-label="from">
+          <span class="dash"></span>
+          <input type="number" id="rangeTo" min="1" inputmode="numeric" aria-label="to">
+        </div>
+      </div>
+      <div class="toggles">
+        <label class="toggle"><input type="checkbox" id="optShuffleQ" checked><i></i><span data-t="shuffleQ"></span></label>
+        <label class="toggle"><input type="checkbox" id="optShuffleA" checked><i></i><span data-t="shuffleA"></span></label>
+        <label class="toggle"><input type="checkbox" id="optInstant" checked><i></i><span data-t="instant"></span></label>
+      </div>
+      <button id="startBtn" class="btn primary block" type="button" data-t="start"></button>
+      <div class="row2">
+        <button id="resumeBtn" class="btn ghost hidden" type="button"></button>
+        <button id="mistakesBtn" class="btn ghost hidden" type="button"></button>
+      </div>
+    </div>
   </section>
 
-  <!-- QUIZ SCREEN -->
-  <section id="quiz" class="screen hidden">
-    <div class="progress-wrap">
-      <div class="progress-text"><span id="qNum"></span><span id="score"></span></div>
-      <div class="bar"><div id="barFill"></div></div>
+  <!-- QUIZ -->
+  <section id="quiz" class="screen quiz hidden">
+    <div class="quiz-main">
+      <div class="progress">
+        <div class="progress-top">
+          <span id="qNum"></span>
+          <span class="pills"><span class="pill ok" id="scoreOk">0</span><span class="pill bad" id="scoreBad">0</span></span>
+        </div>
+        <div class="bar"><div id="barFill"></div></div>
+      </div>
+
+      <article class="panel qcard">
+        <div class="qmeta"><span id="qOrig"></span><span id="qHint" class="hint"></span></div>
+        <h2 id="qText"></h2>
+        <div id="answers" class="answers"></div>
+        <div id="feedback" class="feedback hidden" role="status"></div>
+      </article>
+
+      <div class="actions">
+        <button id="prevBtn" class="btn ghost icon" type="button" aria-label="prev">←</button>
+        <button id="checkBtn" class="btn primary" type="button" data-t="check"></button>
+        <button id="nextBtn" class="btn primary hidden" type="button"></button>
+        <button id="gridBtn" class="btn ghost icon only-mobile" type="button" aria-label="grid">▦</button>
+      </div>
     </div>
-    <div class="card">
-      <div class="qmeta"><span id="qOrig"></span><span id="qHint"></span></div>
-      <h2 id="qText"></h2>
-      <div id="answers" class="answers"></div>
-      <div id="feedback" class="feedback hidden"></div>
-    </div>
-    <div class="nav">
-      <button id="prevBtn" class="ghost" type="button" data-t="prev"></button>
-      <button id="checkBtn" class="primary" type="button" data-t="check"></button>
-      <button id="nextBtn" class="primary hidden" type="button" data-t="next"></button>
-    </div>
-    <div class="nav secondary">
-      <button id="gridBtn" class="ghost small" type="button" data-t="all"></button>
-      <button id="finishBtn" class="ghost small danger" type="button" data-t="finish"></button>
-    </div>
-    <div id="grid" class="grid hidden"></div>
+
+    <aside class="panel side" id="side">
+      <div class="side-head">
+        <span class="label" data-t="all"></span>
+        <button id="finishBtn" class="link danger" type="button" data-t="finish"></button>
+      </div>
+      <div id="grid" class="grid"></div>
+      <div class="legend">
+        <span><i class="dot ok"></i><span data-t="lgOk"></span></span>
+        <span><i class="dot bad"></i><span data-t="lgBad"></span></span>
+        <span><i class="dot sel"></i><span data-t="lgSel"></span></span>
+      </div>
+    </aside>
   </section>
 
-  <!-- RESULT SCREEN -->
+  <!-- RESULT -->
   <section id="result" class="screen hidden">
-    <div class="card center">
-      <h1 data-t="result"></h1>
-      <div class="big-score" id="resPercent"></div>
-      <p id="resText" class="muted"></p>
-      <div class="res-actions">
-        <button id="reviewBtn" class="primary big" type="button" data-t="reviewWrong"></button>
-        <button id="retryWrongBtn" class="ghost big" type="button" data-t="retryWrong"></button>
-        <button id="homeBtn" class="ghost big" type="button" data-t="home"></button>
+    <div class="panel result">
+      <div class="ring" id="ring"><span id="resPercent"></span></div>
+      <div class="result-body">
+        <span class="eyebrow" data-t="result"></span>
+        <h1 id="resTitle"></h1>
+        <div class="res-stats">
+          <div><b id="resOk"></b><span data-t="lgOk"></span></div>
+          <div><b id="resBad"></b><span data-t="lgBad"></span></div>
+          <div><b id="resNone"></b><span data-t="unanswered"></span></div>
+        </div>
+        <div class="res-actions">
+          <button id="retryWrongBtn" class="btn primary" type="button" data-t="retryWrong"></button>
+          <button id="reviewBtn" class="btn ghost" type="button" data-t="reviewWrong"></button>
+          <button id="homeBtn" class="btn ghost" type="button" data-t="home"></button>
+        </div>
       </div>
     </div>
-    <div id="review"></div>
+    <div id="review" class="review"></div>
   </section>
 </main>
 
