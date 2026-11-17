@@ -186,7 +186,7 @@
   function readOptions() {
     return {
       shuffleQ: $('optShuffleQ').checked,
-      shuffleA: $('optShuffleA').checked,
+      shuffleA: true, // always: source file lists correct answers first
       instant: $('optInstant').checked
     };
   }
