@@ -20,11 +20,11 @@
       shuffleQ: 'Savollarni aralashtirish', shuffleA: 'Javoblarni aralashtirish',
       instant: 'Javobni darhol ko‘rsatish', start: 'Testni boshlash',
       resume: 'Davom ettirish · {a}/{b}', mistakes: 'Xatolar · {n}',
-      check: 'Tekshirish', next: 'Keyingi', finishBtn: 'Yakunlash', all: 'Savollar',
+      check: 'Tasdiqlash', next: 'Keyingi', finishBtn: 'Yakunlash', all: 'Savollar',
       finish: 'Yakunlash', result: 'Natija', reviewWrong: 'Xatolarni ko‘rish',
       retryWrong: 'Xatolarni qayta yechish', home: 'Bosh sahifa',
       qOf: 'Savol {a} / {b}', orig: 'Baza № {n}',
-      one: '1 ta to‘g‘ri javob', many: '{n} ta to‘g‘ri javob',
+      one: 'Bitta javobni tanlang', many: 'Bir nechta javob tanlash mumkin',
       ok: 'To‘g‘ri javob!', bad: 'Noto‘g‘ri. To‘g‘ri javob yashil rangda ko‘rsatilgan',
       part: 'Qisman to‘g‘ri. Barcha to‘g‘ri javoblar yashil rangda',
       tagOk: '✓ To‘g‘ri', tagBad: '✕ Noto‘g‘ri', tagMissed: 'To‘g‘ri javob',
@@ -42,11 +42,11 @@
       shuffleQ: 'Перемешать вопросы', shuffleA: 'Перемешать ответы',
       instant: 'Сразу показывать ответ', start: 'Начать тест',
       resume: 'Продолжить · {a}/{b}', mistakes: 'Ошибки · {n}',
-      check: 'Проверить', next: 'Далее', finishBtn: 'Завершить', all: 'Вопросы',
+      check: 'Подтвердить', next: 'Далее', finishBtn: 'Завершить', all: 'Вопросы',
       finish: 'Завершить', result: 'Результат', reviewWrong: 'Разбор ошибок',
       retryWrong: 'Перерешать ошибки', home: 'На главную',
       qOf: 'Вопрос {a} / {b}', orig: 'В базе № {n}',
-      one: '1 правильный ответ', many: '{n} правильных ответа',
+      one: 'Выберите один ответ', many: 'Можно выбрать несколько ответов',
       ok: 'Правильно!', bad: 'Неверно. Правильный ответ выделен зелёным',
       part: 'Частично верно. Все правильные ответы выделены зелёным',
       tagOk: '✓ Верно', tagBad: '✕ Неверно', tagMissed: 'Правильный ответ',
@@ -225,9 +225,12 @@
   function buildAnswer(tag, q, ai, pos, sel, locked, multi) {
     var st = answerState(q, ai, sel, locked);
     var node = el(tag, 'answer' + (multi ? ' multi' : '') + (st.cls ? ' ' + st.cls : ''));
-    var mark = st.cls.indexOf('wrong') !== -1 ? '✕' : (st.cls === 'correct' ? '✓' : LETTERS[pos]);
-    node.appendChild(el('span', 'mark', mark));
-    node.appendChild(el('span', '', q.a[ai]));
+    var icon = st.cls.indexOf('wrong') !== -1 ? '✕' : (st.cls === 'correct' ? '✓' : (multi ? '✓' : ''));
+    var ctl = el('span', 'ctl', icon);
+    ctl.setAttribute('aria-hidden', 'true');
+    node.appendChild(ctl);
+    node.appendChild(el('span', 'atext', q.a[ai]));
+    node.setAttribute('data-key', LETTERS[pos]);
     if (st.tag) node.appendChild(el('span', 'tag', st.tag));
     return node;
   }
@@ -246,7 +249,9 @@
     $('scoreOk').parentNode.classList.toggle('hidden', !s.instant);
     $('barFill').style.transform = 'scaleX(' + ((i + 1) / s.ids.length) + ')';
     $('qOrig').textContent = t('orig', { n: s.ids[i] + 1 });
-    $('qHint').textContent = multi ? t('many', { n: q.c.length }) : t('one');
+    $('qHint').textContent = multi ? t('many') : t('one');
+    $('qHint').className = 'hint ' + (multi ? 'hint-multi' : 'hint-single');
+    $('qCard').classList.toggle('is-multi', multi);
     $('qText').textContent = q.q;
 
     var box = $('answers');
@@ -255,7 +260,8 @@
     s.ansOrder[i].forEach(function (ai, pos) {
       var b = buildAnswer('button', q, ai, pos, sel, locked, multi);
       b.type = 'button';
-      b.setAttribute('aria-pressed', String(sel.indexOf(ai) !== -1));
+      b.setAttribute('role', multi ? 'checkbox' : 'radio');
+      b.setAttribute('aria-checked', String(sel.indexOf(ai) !== -1));
       if (!locked) b.addEventListener('click', function () { toggleAnswer(ai, multi); });
       box.appendChild(b);
     });
@@ -283,14 +289,13 @@
   }
 
   function toggleAnswer(ai, multi) {
-    var s = session, i = s.cur, q = QUESTIONS[s.ids[i]];
+    var s = session, i = s.cur;
     var sel = s.selected[i];
+    // answers are only graded when the user presses the confirm button
     var next = !multi ? [ai]
       : sel.indexOf(ai) !== -1 ? sel.filter(function (x) { return x !== ai; })
       : sel.concat([ai]);
     s.selected = s.selected.map(function (v, k) { return k === i ? next : v; });
-    // instant mode: check automatically once the required number of answers is chosen
-    if (s.instant && next.length === q.c.length) { checkCurrent(); return; }
     save();
     renderQuiz();
   }
